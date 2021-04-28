@@ -1,12 +1,13 @@
 
 from abc import ABC, abstractmethod
-from typing import Type, Union, Optional
+from typing import Type, Union, Optional, List
 
 from glom import glom
 
 # Installed Packages
 from pydantic import BaseModel as BM
 from pydantic import validator
+from pydantic import parse_obj_as
 
 
 class DefaultBaseModel(BM):
@@ -46,10 +47,17 @@ class _MappingMixinBase(ABC):
             return self.process_map(value, input_dict)
         if isinstance(value, list):
             return [self.process_map_value(v, input_dict) for v in value]
+        if isinstance(value, tuple):
+            print("here")
+            func, search, model = value
+            return func(input_dict, search, model)
         if callable(value):
             return value(input_dict)
 
-
+def list_class(input_dict, value, Model):
+    obj = glom(input_dict, value, default=None)
+    nested_class = parse_obj_as(List[Model], obj)
+    return nested_class
 class MappedModel(DefaultBaseModel, _MappingMixinBase, ABC):
     @property
     def mapped(self):
@@ -78,29 +86,54 @@ class MapDictToModel(_MappingMixinBase, ABC):
 
 
 v2 = {"line_items":
-    [
+    
       {
         "quantity": 7,
-        "price": "1.00",
-        "address": {"city": "BOca Raon",
+        "prices": "1.00",
+        "addresses": {"city": "BOca Raon",
                     "state": "FLORIDA "},
         "test": [{"city": "BOca Raon",
                     "state": "FLORIDA "},
                     {"city": "Maimi",
                     "state": "FLORIDA "}],
+        "nested": [{"items_1": { "discounts": [
+                        {
+                            "id": 3,
+                            "discounted_amount": 3.05
+                        },
+                        {
+                            "id": 4,
+                            "discounted_amount": 4
+                        }
+                    ]}
+                    
+                    },
+                    {"items_2": { "discounts": [
+                        {
+                            "id": 3,
+                            "discounted_amount": 3.05
+                        },
+                        {
+                            "id": 4,
+                            "discounted_amount": 4
+                        }
+                    ]}
+                    
+                    }]
+
       }
-    ],}
+    ,}
 
 checkouts = {"line_items":
     
       {
-        "price": "1.00",
-        "address": {"city": "BOca Raon",
-                    "state": "FLORIDA "},
-        "test": [{"city": "BOca Raon",
-                    "state": "FLORIDA "},
-                    {"city": "Maimi",
-                    "state": "FLORIDA "}],
+        "prices": "1.00",
+        "addresses": {"city": "Grenaccres",
+                    "state": "Ohie "},
+        "test": [{"cities": "Boca",
+                    "states": "FLORIDA "},
+                    {"cities": "Maimi",
+                    "states": "FLORIDA "}],
         "grams": 4536,
         "line_price": "7.00",
         "order_day_of_month": False,
@@ -109,7 +142,6 @@ checkouts = {"line_items":
         "order_interval_unit": "day",
         "order_interval_unit_type": "day",
         "original_price": "450.00",
-        "price": "1.00",
         "product_id": 4313321766958,
         "product_type": "",
         "properties": False,
@@ -124,31 +156,95 @@ checkouts = {"line_items":
         "vendor": "nemanjateststore"
       }
     }
-class Address(BM):
-    city: str
-    state: str
-class RechargeLineItems(MappedModel):
-    price: float 
-    opts: Optional[float] = None
-    test: list
-    address: Address
 
-    #missint map and output model
+class Nested(MappedModel):
+    city: list
+    state: str
     @property
     def map(self):
-        map_dict = self.default_map()
+        map_dict = self.default_map(exclue={"test"})
+        map_dict["test"] = parse_obj_as(List[Address], self.test)
         return map_dict
     @property
     def output_model(self) -> property:
         return property
 
+class Address(MappedModel):
+    city: str
+    state: str
+    @property
+    def map(self):
+        map_dict = self.default_map(exclue={"test"})
+        map_dict["test"] = parse_obj_as(List[Address], self.test)
+        return map_dict
+    @property
+    def output_model(self) -> property:
+        return property
+
+
+class RechargeLineItems(MappedModel):
+    price: float 
+    opts: Optional[float] = None
+    test: list
+    address: Address
+    nested: list 
+
+    #missint map and output model
+    @property
+    def map(self):
+        map_dict = self.default_map(exclue={"test"})
+        map_dict["test"] = parse_obj_as(List[Address], self.test)
+        return map_dict
+    @property
+    def output_model(self) -> property:
+        return property
+# class Cities(MapDictToModel):
+#     output_model = Address
+#     map: dict = {
+#         "city": "cities",
+#         "states": "states",
+#     }
 class LineItems(MapDictToModel):
     output_model = RechargeLineItems
+    
     map: dict = {
-        "price": "line_items.price",
-        "test": "line_items.test",
-        "address": "line_items.address"
+        "price": "line_items.prices",
+        "address": "line_items.addresses",
+        "test": (list_class, "line_items.test", Address),
+        "nested": (list_class, "line_items.nested", Nested)
     }
 
-r = LineItems(checkouts)
+
+# r = list_class(v2, "line_items.test")
+r = LineItems(v2)
 print(r.mapped)
+
+
+# users = [
+#     {
+#         "quantity": 8,
+#         "price": "3.00",
+#         "address": {"city": "Raon",
+#                     "state": "US "},
+#         "test": [{"city": "BOca Raon",
+#                     "state": "US "},
+#                     {"city": "MI",
+#                     "state": "US "}],
+#         "Ahhhhhhhhhhhhhhhhhhhhhhhhhhhhh": "non used value"
+#       }, 
+#     {
+#         "quantity": 7,
+#         "price": "1.00",
+#         "address": {"city": "BOca Raon",
+#                     "state": "FLORIDA "},
+#         "test": [{"city": "BOca Raon",
+#                     "state": "FLORIDA "},
+#                     {"city": "Maimi",
+#                     "state": "FLORIDA "}],
+#       }
+# ]
+
+# m = parse_obj_as(List[RechargeLineItems], users)
+# for item in m:
+#     print(item.json())
+# print(dict(m))

@@ -1,0 +1,120 @@
+{
+    "data": {
+        "id": "34a2d5d3-bf21-4d2a-8ba5-2be3cd4ed80e",
+        "customer_id": 0,
+        "channel_id": 1,
+        "email": "",
+        "currency": {
+            "code": "USD"
+        },
+        "tax_included": false,
+        "base_amount": 224.99,
+        "discount_amount": 112.5,
+        "cart_amount": 122.59,
+        "coupons": [
+            {
+                "id": 8,
+                "code": "D7KAMX8ITO1C",
+                "name": "Free Shipping",
+                "coupon_type": "free_shipping",
+                "discounted_amount": 0
+            }
+        ],
+        "line_items": {
+            "physical_items": [
+                {
+                    "id": "e0cf6d1d-9d27-4c0e-89ec-afb5d38b9d9d",
+                    "parent_id": null,
+                    "variant_id": 84,
+                    "product_id": 116,
+                    "sku": "085423",
+                    "name": "1 time and Sub GNC Glucosamine Sulfate 500 mg",
+                    "url": "https://recharge-cameo-dev-1.mybigcommerce.com/gnc-glucosamine-sulfate-500-mg/",
+                    "quantity": 1,
+                    "taxable": true,
+                    "image_url": "https://cdn11.bigcommerce.com/s-ezugzr2hlz/products/116/images/377/2__23615.1612461887.220.290.png?c=1",
+                    "discounts": [
+                        {
+                            "id": 1,
+                            "discounted_amount": 7.64
+                        }
+                    ],
+                    "coupons": [],
+                    "discount_amount": 0,
+                    "coupon_amount": 0,
+                    "list_price": 15,
+                    "sale_price": 15,
+                    "extended_list_price": 15,
+                    "extended_sale_price": 15,
+                    "is_require_shipping": true,
+                    "is_mutable": true
+                },
+                {
+                    "id": "702c702a-3821-40ca-83b1-e41d33ae1bcd",
+                    "parent_id": null,
+                    "variant_id": 83,
+                    "product_id": 115,
+                    "sku": "130622",
+                    "name": "1X+Sub GNC SAM-e 400 MG.",
+                    "url": "https://recharge-cameo-dev-1.mybigcommerce.com/gnc-sam-e-400-mg/",
+                    "quantity": 1,
+                    "taxable": true,
+                    "image_url": "https://cdn11.bigcommerce.com/s-ezugzr2hlz/products/115/images/376/1__44321.1612461774.220.290.png?c=1",
+                    "discounts": [
+                        {
+                            "id": 1,
+                            "discounted_amount": 3.05
+                        },
+                        {
+                            "id": 7,
+                            "discounted_amount": 4
+                        }
+                    ],
+                    "coupons": [],
+                    "discount_amount": 4,
+                    "coupon_amount": 0,
+                    "list_price": 10,
+                    "sale_price": 6,
+                    "extended_list_price": 10,
+                    "extended_sale_price": 6,
+                    "is_require_shipping": true,
+                    "is_mutable": true
+                },
+                {
+                    "id": "4cccd760-e0c2-4d98-90f3-e871f3bf619d",
+                    "parent_id": null,
+                    "variant_id": 87,
+                    "product_id": 119,
+                    "sku": "721312",
+                    "name": "1x Hydroslide Edge Jr Wakeboard",
+                    "url": "https://recharge-cameo-dev-1.mybigcommerce.com/1x-hydroslide-edge-jr-wakeboard/",
+                    "quantity": 1,
+                    "taxable": true,
+                    "image_url": "https://cdn11.bigcommerce.com/s-ezugzr2hlz/products/119/images/380/wb__57800.1612483498.220.290.png?c=1",
+                    "discounts": [
+                        {
+                            "id": 1,
+                            "discounted_amount": 101.81
+                        }
+                    ],
+                    "coupons": [],
+                    "discount_amount": 0,
+                    "coupon_amount": 0,
+                    "list_price": 199.99,
+                    "sale_price": 199.99,
+                    "extended_list_price": 199.99,
+                    "extended_sale_price": 199.99,
+                    "is_require_shipping": true,
+                    "is_mutable": true
+                }
+            ],
+            "digital_items": [],
+            "gift_certificates": [],
+            "custom_items": []
+        },
+        "created_time": "2021-04-21T14:48:31+00:00",
+        "updated_time": "2021-04-21T14:59:14+00:00",
+        "locale": "en"
+    },
+    "meta": {}
+}
