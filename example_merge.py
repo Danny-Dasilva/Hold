@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Type, Union, Optional, List
 
-from glom import glom, Coalesce
+from glom import glom, Coalesce, flatten
 from pprint import pprint
 
 # Installed Packages
@@ -38,21 +38,33 @@ class _MappingMixinBase(ABC):
         pass
 
     def process_map(self, map_dict: dict, input_dict: dict):
-        return {k: self.process_map_value(v, input_dict) for k, v in map_dict.items()}
-
+        return {self.process_k(k): self.process_map_value(v, input_dict) for k, v in map_dict.items()}
+    def process_k(self, k):
+        print(k)
     def process_map_value(self, value, input_dict: dict):
+
         if isinstance(value, str):
             return glom(input_dict, value, default=None)
         if isinstance(value, tuple):
+            # merge, filt_keys = value
+            # if callable(merge):
+            #     breakpoint()
+            #     merge(input_dict, filt_keys)
+                
             return glom(input_dict, value, default=None)
         if isinstance(value, dict):
             return self.process_map(value, input_dict)
         if isinstance(value, list):
             return [self.process_map_value(v, input_dict) for v in value]
         if callable(value):
+            breakpoint()
             return value(input_dict)
-
-
+def merge(input_dict, filt_keys):
+    # res = sum(glom())
+    res = flatten([glom(input_dict, i) for i in filt_keys])
+    breakpoint()
+    print(res)
+    return res
 def list_class(input_dict, value, Model):
     obj = glom(input_dict, value, default=None)
     nested_class = parse_obj_as(List[Model], obj)
@@ -84,11 +96,13 @@ class MapDictToModel(_MappingMixinBase, ABC):
         return self.output_model(**processed_map)
 
 
+
 v2 = {
     "items": {
         "quantity": 7,
         "prices": "1.00",
-        "addresses": {"city": "BOca Raon", "state": "FLORIDA "},
+        "addresses": ["asdf", "BOca Raon", "ff", "ff "],
+        "addresses2": ["ff", "BOca ff", "state", "FLORIDA "],
         "test": [
             {"city": "BOca Raon", "state": "FLORIDA "},
             {"city": "Maimi", "state": "FLORIDA "},
@@ -122,7 +136,8 @@ pprint(v2,)
 class Nested(MappedModel):
     city: list
     price: str
-
+    uuid: str
+    
     @validator("uuid", always=True)
     def uuid_to_str(cls, val):
         if not val:
@@ -138,7 +153,7 @@ class Address(MappedModel):
 
     @property
     def map(self):
-        map_dict = self.default_map(exclue={"test"})
+        map_dict = self.default_map(exclude={"test"})
         map_dict["test"] = parse_obj_as(List[Address], self.test)
         return map_dict
 
@@ -151,9 +166,6 @@ class RechargeLineItems(MappedModel):
     price: float
     opts: Optional[float] = None
     test: list = None
-    address: Address
-    nested: list
-
     # missing map and output model
     @property
     def map(self):
@@ -162,8 +174,8 @@ class RechargeLineItems(MappedModel):
         return map_dict
 
     @property
-    def output_model(self) -> property:
-        return property
+    def output_model(self) -> MappedModel:
+        return MappedModel
 
 
 class LineItems(MapDictToModel):
@@ -171,7 +183,7 @@ class LineItems(MapDictToModel):
 
     map: dict = {
         "price": "items.prices",
-        "address": "items.addresses",
+        "address": (['items.addresses', 'items.addresses2'], Flatten(),),
         "test": (
             "items.test",
             [
@@ -202,4 +214,4 @@ class LineItems(MapDictToModel):
 
 print("Updated:")
 r = LineItems(v2)
-pprint(r.mapped.dict())
+pprint(r.mapped.test)
